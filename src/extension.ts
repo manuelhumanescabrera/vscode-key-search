@@ -5,6 +5,9 @@ import * as glob from 'glob';
 import * as which from 'which';
 import * as shell_quote from 'shell-quote';
 import { dirname } from 'path';
+const loadJsonFile = require('load-json-file');
+const JSONFile = 'es.json';
+var range;
 
 export function activate(context: vscode.ExtensionContext) {
     let inplace = vscode.commands.registerCommand('extension.filterTextInplace', (args?: {}) => filterText());
@@ -16,14 +19,17 @@ export function activate(context: vscode.ExtensionContext) {
 async function filterText() {
 
     const cwd = getCurrentWorkingDirectory();
+    var literalKey;
 
-
-    const range = getSelectionRange();
+    range = getSelectionRange();
     let text = getTextFromRange(range);
+
+    let path = cwd + '\\' + JSONFile;
+    await loadFile(path, text);
 
     
 
-    setTextToSelectionRange(range, text);
+    
     
 }
 
@@ -101,4 +107,19 @@ function getCurrentWorkingDirectory(): string {
     }
 
     return os.homedir();
+}
+
+async function loadFile(path: string, text: string) {
+    const fileObject = await loadJsonFile(path);
+    searchKey(text, fileObject);
+    //console.log('fileObject',fileObject);
+}
+
+function searchKey(text: string, fileObject) {
+    for (let key in fileObject) {
+        if (text === fileObject[key]) {
+            let newText = '{{' + key + '|translate}}';
+            setTextToSelectionRange(range, newText);
+        }
+    }
 }
