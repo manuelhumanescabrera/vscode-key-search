@@ -1,13 +1,10 @@
 import * as vscode from 'vscode';
-import * as child_process from 'child_process';
 import * as os from 'os';
-import * as glob from 'glob';
-import * as which from 'which';
-import * as shell_quote from 'shell-quote';
 import { dirname } from 'path';
 const loadJsonFile = require('load-json-file');
 const JSONFile = 'es.json';
-var range;
+var range: vscode.Selection; // rango seleccionado en el editor de texto
+var text: string; // texto seleccionado en el editor de texto
 
 export function activate(context: vscode.ExtensionContext) {
     let inplace = vscode.commands.registerCommand('extension.filterTextInplace', (args?: {}) => filterText());
@@ -15,21 +12,24 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(inplace);
 }
 
-
+/**
+ * Función que se ejecuta al usar el atajo de teclado. 
+ */
 async function filterText() {
 
-    const cwd = getCurrentWorkingDirectory();
-    var literalKey;
+    // guardamos el directorio actual de trabajo
+    const cwd: string = getCurrentWorkingDirectory();
 
+    // guardamos el rango seleccionado en el editor
     range = getSelectionRange();
-    let text = getTextFromRange(range);
 
-    let path = cwd + '\\' + JSONFile;
-    await loadFile(path, text);
+    // guardamos el texto seleccionado en el editor
+    text = getTextFromRange(range);
 
-    
+    // creamos la ruta completa donde buscará el archivo
+    const path = cwd + '\\' + JSONFile;
 
-    
+    replaceString(path, text);   
     
 }
 
@@ -79,7 +79,11 @@ function setTextToSelectionRange(range: vscode.Selection, text: string): void {
     });
 }
 
-
+/**
+ * Función que devuelve la ruta al directorio actual de trabajo
+ * 
+ * @returns string Directorio actual de trabajo
+ */
 function getCurrentWorkingDirectory(): string {
     const uri = vscode.window.activeTextEditor.document.uri;
 
@@ -109,15 +113,31 @@ function getCurrentWorkingDirectory(): string {
     return os.homedir();
 }
 
-async function loadFile(path: string, text: string) {
+/**
+ * Función que sustituye la cadena seleccionada por la clave de su literal
+ * con el formato adecuado
+ * 
+ * @param path Ruta donde se encuentra el archivo de literales
+ * @param text Texto seleccionado en el editor
+ */
+async function replaceString(path: string, text: string) {
     const fileObject = await loadJsonFile(path);
     searchKey(text, fileObject);
     //console.log('fileObject',fileObject);
 }
 
+/**
+ * Función que busca un texto dentro de un objeto de literales
+ * 
+ * @param text Texto seleccionado en el editor
+ * @param fileObject Objecto con las claves y los valores del archivo de literales
+ */
 function searchKey(text: string, fileObject) {
+    // iteramos sobre los literales
     for (let key in fileObject) {
+        // comparamos el texto seleccionado con los valores literales
         if (text === fileObject[key]) {
+            // creamos la cadena con la que sustituimos el texto seleccionado
             let newText = '{{' + key + '|translate}}';
             setTextToSelectionRange(range, newText);
         }
