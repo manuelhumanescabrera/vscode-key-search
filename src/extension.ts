@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
-import * as os from 'os';
-import { dirname } from 'path';
+// import * as os from 'os';
+// import { dirname } from 'path';
 const loadJsonFile = require('load-json-file');
-const JSONFile = 'es.json';
 var range: vscode.Selection; // rango seleccionado en el editor de texto
 var text: string; // texto seleccionado en el editor de texto
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {    
     let inplace = vscode.commands.registerCommand('extension.filterTextInplace', (args?: {}) => filterText());
     
     context.subscriptions.push(inplace);
@@ -18,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 async function filterText() {
 
     // guardamos el directorio actual de trabajo
-    const cwd: string = getCurrentWorkingDirectory();
+    // const cwd: string = getCurrentWorkingDirectory();
 
     // guardamos el rango seleccionado en el editor
     range = getSelectionRange();
@@ -27,9 +26,9 @@ async function filterText() {
     text = getTextFromRange(range);
 
     // creamos la ruta completa donde buscará el archivo
-    const path = cwd + '\\' + JSONFile;
+    const pathFile = "C:\\Dev\\iberia\\workspaces\\web-iberia-plus-glp\\iberia-web-content\\literales\\iberia-plus\\es.json";
 
-    replaceString(path, text);   
+    replaceString(pathFile, text);   
     
 }
 
@@ -84,34 +83,34 @@ function setTextToSelectionRange(range: vscode.Selection, text: string): void {
  * 
  * @returns string Directorio actual de trabajo
  */
-function getCurrentWorkingDirectory(): string {
-    const uri = vscode.window.activeTextEditor.document.uri;
+// function getCurrentWorkingDirectory(): string {
+//     const uri = vscode.window.activeTextEditor.document.uri;
 
-    const isFileOrUntitledDocument = uri && (uri.scheme === 'file' || uri.scheme === 'untitled');
-    if (isFileOrUntitledDocument) {
-        const useDocumentDirAsWorkDir = vscode.workspace.getConfiguration('filterText').useDocumentDirAsWorkDir;
+//     const isFileOrUntitledDocument = uri && (uri.scheme === 'file' || uri.scheme === 'untitled');
+//     if (isFileOrUntitledDocument) {
+//         const useDocumentDirAsWorkDir = vscode.workspace.getConfiguration('filterText').useDocumentDirAsWorkDir;
 
-        if (useDocumentDirAsWorkDir && uri.scheme === 'file') {
-            return dirname(uri.fsPath);
-        }
+//         if (useDocumentDirAsWorkDir && uri.scheme === 'file') {
+//             return dirname(uri.fsPath);
+//         }
 
-        const folder = vscode.workspace.getWorkspaceFolder(uri);
-        if (folder) {
-            return folder.uri.fsPath;
-        }
+//         const folder = vscode.workspace.getWorkspaceFolder(uri);
+//         if (folder) {
+//             return folder.uri.fsPath;
+//         }
 
-        const folders = vscode.workspace.workspaceFolders;
-        if (folders != undefined && folders.length > 0) {
-            return folders[0].uri.fsPath;
-        }
-        // Github #9: if no workspace folders, and uri.scheme !== 'untitled' (i.e. existing file), use folder of that file. Otherwise, use user home directory.
-        if (uri.scheme !== 'untitled') {
-            return dirname(uri.fsPath);
-        }
-    }
+//         const folders = vscode.workspace.workspaceFolders;
+//         if (folders != undefined && folders.length > 0) {
+//             return folders[0].uri.fsPath;
+//         }
+//         // Github #9: if no workspace folders, and uri.scheme !== 'untitled' (i.e. existing file), use folder of that file. Otherwise, use user home directory.
+//         if (uri.scheme !== 'untitled') {
+//             return dirname(uri.fsPath);
+//         }
+//     }
 
-    return os.homedir();
-}
+//     return os.homedir();
+// }
 
 /**
  * Función que sustituye la cadena seleccionada por la clave de su literal

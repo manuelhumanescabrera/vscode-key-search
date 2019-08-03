@@ -1,9 +1,9 @@
 {
-  "name": "FilterTextDFront",
+  "name": "filter-text-dfront",
   "displayName": "Filter Text Dfront",
   "description": "Filter selected text through a literal file.",
   "version": "0.0.1",
-  "publisher": "Manuel Humanes Cabrera",
+  "publisher": "manuel-humanes-cabrera",
   "engines": {
     "vscode": "^1.15.0"
   },
@@ -96,6 +96,7 @@
     "eslint": ">=4.18.2",
     "mocha": "^6.2.0",
     "typescript": "^2.0.3",
+    "vsce": "^1.66.0",
     "vscode": "^1.1.35"
   },
   "dependencies": {
