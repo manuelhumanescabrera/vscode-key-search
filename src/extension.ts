@@ -5,6 +5,8 @@ const loadJsonFile = require('load-json-file');
 var range: vscode.Selection; // rango seleccionado en el editor de texto
 var text: string; // texto seleccionado en el editor de texto
 let lastEntry: string = '';
+var config = (vscode.workspace.getConfiguration('filterText') as any); // aqui cargaremos la configuracion de nuestra extension
+const pathFile = config.filePath.windows; // ruta de nuestro archivo de literales
 
 export function activate(context: vscode.ExtensionContext) {    
     let inplace = vscode.commands.registerCommand('extension.filterTextInplace', (args?: {}) => filterText(args));
@@ -40,12 +42,8 @@ async function filterText(args?: {}) {
     range = getSelectionRange();
 
     // guardamos el texto seleccionado en el editor
-    text = getTextFromRange(range);
-
-    // creamos la ruta completa donde buscará el archivo
-    const pathFile = "C:\\Dev\\iberia\\workspaces\\web-iberia-plus-glp\\iberia-web-content\\literales\\iberia-plus\\es.json";
-    // const pathFile = "C:\\Dev\\Iberia\\workspace\\web-iberia-plus-glp\\iberia-web-content\\literales\\iberia-plus\\es.json";
-
+    text = getTextFromRange(range);    
+    
     replaceString(pathFile, text);   
      
 }
