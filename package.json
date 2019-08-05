@@ -24,11 +24,11 @@
   "contributes": {
     "configuration": {
       "title": "Filter Text configuration",
-      "properties": {        
+      "properties": {
         "filterText.filePath.windows": {
           "type": "string",
           "description": "Path of the file to use."
-        }        
+        }
       }
     },
     "commands": [
@@ -62,6 +62,7 @@
     "vscode": "^1.1.35"
   },
   "dependencies": {
+    "jsonfile": "^5.0.0",
     "load-json-file": "^6.2.0",
     "save": "^2.4.0"
   }

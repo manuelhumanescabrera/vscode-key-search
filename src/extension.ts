@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 // import * as os from 'os';
 // import { dirname } from 'path';
 const loadJsonFile = require('load-json-file');
+const jsonfile = require('jsonfile');
 var range: vscode.Selection; // rango seleccionado en el editor de texto
 var text: string; // texto seleccionado en el editor de texto
 let lastEntry: string = '';
@@ -20,11 +21,10 @@ async function filterTextWrapper(args?: {}) {
             placeHolder: 'Please enter a valid literal key',
             value: lastEntry
         }).then(async (entry: string) => {
-            console.log('entry', entry);
+            lastEntry = entry;
+            searchKey(pathFile, entry);
             //filterText(entry);
         });
-    } else if (('cmd' in args) && (typeof args['cmd'] === 'string')) {
-        console.log('args', args);
     } else {
         vscode.window.showErrorMessage('Invalid arguments passed. Must be a hash map with key \"cmd\" of type string.');
     }
@@ -57,8 +57,7 @@ async function filterText(args?: {}) {
  */
 async function replaceString(path: string, text: string) {
     const fileObject = await loadJsonFile(path);
-    searchKey(text, fileObject);
-    //console.log('fileObject',fileObject);
+    searchLiteral(text, fileObject);
 }
 
 /**
@@ -67,8 +66,8 @@ async function replaceString(path: string, text: string) {
  * @param text Texto seleccionado en el editor
  * @param fileObject Objecto con las claves y los valores del archivo de literales
  */
-function searchKey(text: string, fileObject) {
-    var keyExists = false;
+function searchLiteral(text: string, fileObject) {
+    let keyExists = false;
     // iteramos sobre los literales
     for (let key in fileObject) {
         // comparamos el texto seleccionado con los valores literales
@@ -82,6 +81,49 @@ function searchKey(text: string, fileObject) {
 
     if(!keyExists) {
         filterTextWrapper();
+    }
+}
+/**
+ * Función que sustituye la cadena seleccionada por la clave de su literal
+ * con el formato adecuado
+ * 
+ * @param path Ruta donde se encuentra el archivo de literales
+ * @param text Texto seleccionado en el editor
+ */
+async function searchKey(path: string, text: string) {
+    const fileObject = await loadJsonFile(path);
+    createKey(text, fileObject);
+}
+
+/**
+ * Función que busca una clave dentro de un objeto de literales
+ * 
+ * @param entry Clave introducida en el input
+ * @param fileObject Objecto con las claves y los valores del archivo de literales
+ */
+function createKey(entry: string, fileObject) {
+    // iteramos sobre las claves de los literales
+    let keyExists = false;
+    for (let key in fileObject) {
+        // comparamos la clave introducida con las claves de los literales
+        if (entry === key) {
+            keyExists = true;
+        }
+    }
+   
+    // comprobamos si existe la clave
+    if(keyExists) {
+        // si la clave existe volvemos a mostrar el input
+        filterTextWrapper();
+    }
+    else {
+        fileObject[entry] = text;
+        // añadimos nuestra nueva clave y literal al archivo de literales
+        jsonfile.writeFileSync(pathFile, fileObject, { spaces: 2, EOL: '\r\n' });
+        let newText = '{{\'' + entry + '\'|translate}}';
+        // colocamos la nueva clave en el código html
+        setTextToSelectionRange(range, newText);
+        lastEntry = ''; // reinicializamos el value del input
     }
 }
 
