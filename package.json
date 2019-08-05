@@ -24,49 +24,11 @@
   "contributes": {
     "configuration": {
       "title": "Filter Text configuration",
-      "properties": {
-        "filterText.useDocumentIfEmptySelection": {
-          "type": "boolean",
-          "default": true,
-          "description": "If no text is selected, filter the entire document."
-        },
-        "filterText.invokeViaBash.windows": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether to invoke filter command via bash on windows."
-        },
-        "filterText.bashPath.windows": {
+      "properties": {        
+        "filterText.filePath.windows": {
           "type": "string",
-          "default": "C:/cygwin/bin/bash.exe",
-          "description": "Path of the bash to use.  Default to Cygwin's path."
-        },
-        "filterText.useDocumentDirAsWorkDir": {
-          "type": "boolean",
-          "default": false,
-          "description": "Always use the path of the current file as the current working dir instead of the heuristic."
-        },
-        "filterText.commandList": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "inner objects",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "The name of the command entry."
-              },
-              "description": {
-                "type": "string",
-                "description": "Description of the command."
-              },
-              "command": {
-                "type": "string",
-                "description": "The actual command to invoke, e.g. sort | uniq."
-              }
-            }
-          },
-          "description": "List of predefined commands"
-        }
+          "description": "Path of the file to use."
+        }        
       }
     },
     "commands": [
