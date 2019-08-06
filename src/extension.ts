@@ -9,6 +9,7 @@ let lastEntry: string = '';
 var config = (vscode.workspace.getConfiguration('filterText') as any); // aqui cargaremos la configuracion de nuestra extension
 const pathFile = config.filePath.windows; // ruta de nuestro archivo de literales
 const keyPattern = config.stringTemplate.windows; // plantilla de nuestra clave
+
 export function activate(context: vscode.ExtensionContext) {    
     let inplace = vscode.commands.registerCommand('extension.filterTextInplace', (args?: {}) => filterText(args));
     
@@ -38,17 +39,18 @@ async function filterTextWrapper(args?: {}) {
  * Función que se ejecuta al usar el atajo de teclado. 
  */
 async function filterText(args?: {}) {
-    
     // guardamos el directorio actual de trabajo
     // const cwd: string = getCurrentWorkingDirectory();
 
     // guardamos el rango seleccionado en el editor
     range = getSelectionRange();
-
-    // guardamos el texto seleccionado en el editor
-    text = getTextFromRange(range);    
+    if(range) {
+        // guardamos el texto seleccionado en el editor
+        text = getTextFromRange(range);
+        replaceString(pathFile, text);
+    }
     
-    replaceString(pathFile, text);   
+       
      
 }
 
@@ -140,27 +142,9 @@ function validateKey(input: string) :string {
     return (input !== '') ? '' : 'Esta clave no es válida';
 }
 function getSelectionRange(): vscode.Selection {
-    let config = (vscode.workspace.getConfiguration('filterText') as any);
-    let useDocument = config.useDocumentIfEmptySelection;
-
     let editor = vscode.window.activeTextEditor;
 
-    let range = undefined;
-    if (!editor.selection.isEmpty) {
-        range = editor.selection;
-    }
-
-    if (range === undefined) {
-        if (useDocument === false) {
-            let position = editor.selection.anchor;
-            range = new vscode.Range(position.line, position.character, position.line, position.character);
-        } else if (editor.document.lineCount > 0) {
-            let lineCount = editor.document.lineCount;
-            range = new vscode.Range(0, 0, lineCount, editor.document.lineAt(lineCount - 1).text.length);
-        }
-    }
-
-    return range;
+    return (!editor.selection.isEmpty) ? editor.selection : undefined;
 }
 
 function getTextFromRange(range: vscode.Selection): string {
