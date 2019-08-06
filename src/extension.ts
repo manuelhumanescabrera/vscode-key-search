@@ -8,7 +8,7 @@ var text: string; // texto seleccionado en el editor de texto
 let lastEntry: string = '';
 var config = (vscode.workspace.getConfiguration('filterText') as any); // aqui cargaremos la configuracion de nuestra extension
 const pathFile = config.filePath.windows; // ruta de nuestro archivo de literales
-
+const keyPattern = config.stringTemplate.windows; // plantilla de nuestra clave
 export function activate(context: vscode.ExtensionContext) {    
     let inplace = vscode.commands.registerCommand('extension.filterTextInplace', (args?: {}) => filterText(args));
     
@@ -18,12 +18,16 @@ export function activate(context: vscode.ExtensionContext) {
 async function filterTextWrapper(args?: {}) {
     if (typeof args === 'undefined') {
         vscode.window.showInputBox({
+            ignoreFocusOut: true,
             placeHolder: 'Please enter a valid literal key',
-            value: lastEntry
+            value: lastEntry,
+            validateInput: validateKey
         }).then(async (entry: string) => {
-            lastEntry = entry;
-            searchKey(pathFile, entry);
-            //filterText(entry);
+            // comprobamos que el usuario no haya pulsado ESC
+            if(entry){
+                lastEntry = entry;
+                searchKey(pathFile, entry);
+            }
         });
     } else {
         vscode.window.showErrorMessage('Invalid arguments passed. Must be a hash map with key \"cmd\" of type string.');
@@ -74,7 +78,7 @@ function searchLiteral(text: string, fileObject) {
         if (text === fileObject[key]) {
             keyExists = true;
             // creamos la cadena con la que sustituimos el texto seleccionado
-            let newText = `{{'${key}' |translate}}`;
+            let newText = eval('`' + keyPattern + '`');
             setTextToSelectionRange(range, newText);
         }
     }
@@ -98,15 +102,15 @@ async function searchKey(path: string, text: string) {
 /**
  * Función que busca una clave dentro de un objeto de literales
  * 
- * @param entry Clave introducida en el input
+ * @param key Clave introducida en el input
  * @param fileObject Objecto con las claves y los valores del archivo de literales
  */
-function createKey(entry: string, fileObject) {
+function createKey(key: string, fileObject) {
     // iteramos sobre las claves de los literales
     let keyExists = false;
-    for (let key in fileObject) {
+    for (let keyFile in fileObject) {
         // comparamos la clave introducida con las claves de los literales
-        if (entry === key) {
+        if (key === keyFile) {
             keyExists = true;
         }
     }
@@ -117,16 +121,24 @@ function createKey(entry: string, fileObject) {
         filterTextWrapper();
     }
     else {
-        fileObject[entry] = text.replace(/\r?\n|\r| {2,}/g," "); // aqui eliminamos el formato del texto
+        fileObject[key] = text.replace(/\r?\n|\r| {2,}/g," "); // aqui eliminamos el formato del texto
         // añadimos nuestra nueva clave y literal al archivo de literales
         jsonfile.writeFileSync(pathFile, fileObject, { spaces: 2, EOL: '\r\n' });
-        let newText = `{{'${entry}' |translate}}`;
+        let newText = eval('`' + keyPattern + '`');
         // colocamos la nueva clave en el código html
         setTextToSelectionRange(range, newText);
         lastEntry = ''; // reinicializamos el value del input
     }
 }
 
+/**
+ * Funcion que comprueba que la clave sea valida
+ * 
+ * @param input Value introduced by the user
+ */
+function validateKey(input: string) :string {    
+    return (input !== '') ? '' : 'Esta clave no es válida';
+}
 function getSelectionRange(): vscode.Selection {
     let config = (vscode.workspace.getConfiguration('filterText') as any);
     let useDocument = config.useDocumentIfEmptySelection;
@@ -211,29 +223,29 @@ function setTextToSelectionRange(range: vscode.Selection, text: string): void {
  * This implementation of the QuickPickItem contains the information necessary
  * for displaying a quickpick item, as well as the command it should execute.
  */
-class Item implements vscode.QuickPickItem {
-    label: string;
-    description: string;
+// class Item implements vscode.QuickPickItem {
+//     label: string;
+//     description: string;
 
-    /**
-     * The literal command which the user wants to execute when this item is
-     * picked from the QuickPick list.
-     */
-    command: string;
+//     /**
+//      * The literal command which the user wants to execute when this item is
+//      * picked from the QuickPick list.
+//      */
+//     command: string;
 
-    constructor(label: string, description: string, command: string) {
-        this.label = label;
-        this.description = description;
-        this.command = command;
-    }
+//     constructor(label: string, description: string, command: string) {
+//         this.label = label;
+//         this.description = description;
+//         this.command = command;
+//     }
 
-    /**
-     * Runs the command.
-     */
-    run() {
-        let cmd = {
-            cmd: this.command
-        };
-        filterTextWrapper(cmd);
-    }
-};
+//     /**
+//      * Runs the command.
+//      */
+//     run() {
+//         let cmd = {
+//             cmd: this.command
+//         };
+//         filterTextWrapper(cmd);
+//     }
+// };

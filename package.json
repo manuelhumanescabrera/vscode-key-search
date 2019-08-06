@@ -28,6 +28,10 @@
         "filterText.filePath.windows": {
           "type": "string",
           "description": "Path of the file to use."
+        },
+        "filterText.stringTemplate.windows": {
+          "type": "string",
+          "description": "Template of the key string template to use."
         }
       }
     },
