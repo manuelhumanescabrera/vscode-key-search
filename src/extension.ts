@@ -74,7 +74,7 @@ function searchLiteral(text: string, fileObject) {
         if (text === fileObject[key]) {
             keyExists = true;
             // creamos la cadena con la que sustituimos el texto seleccionado
-            let newText = '{{\'' + key + '\'|translate}}';
+            let newText = `{{'${key}' |translate}}`;
             setTextToSelectionRange(range, newText);
         }
     }
@@ -117,10 +117,10 @@ function createKey(entry: string, fileObject) {
         filterTextWrapper();
     }
     else {
-        fileObject[entry] = text;
+        fileObject[entry] = text.replace(/\r?\n|\r| {2,}/g," "); // aqui eliminamos el formato del texto
         // añadimos nuestra nueva clave y literal al archivo de literales
         jsonfile.writeFileSync(pathFile, fileObject, { spaces: 2, EOL: '\r\n' });
-        let newText = '{{\'' + entry + '\'|translate}}';
+        let newText = `{{'${entry}' |translate}}`;
         // colocamos la nueva clave en el código html
         setTextToSelectionRange(range, newText);
         lastEntry = ''; // reinicializamos el value del input
