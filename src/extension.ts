@@ -28,7 +28,7 @@ async function filterTextWrapper(args?: {}) {
             // comprobamos que el usuario no haya pulsado ESC
             if(entry){
                 lastEntry = entry;
-                searchKey(pathFile, entry);
+                searchKey(entry);
             }
         });
     } else {
@@ -48,7 +48,7 @@ async function filterText(args?: {}) {
     if(range) {
         // guardamos el texto seleccionado en el editor
         text = getTextFromRange(range);
-        replaceString(pathFile, text);
+        replaceString(text);
     }
     
        
@@ -59,12 +59,12 @@ async function filterText(args?: {}) {
  * Función que sustituye la cadena seleccionada por la clave de su literal
  * con el formato adecuado
  * 
- * @param path Ruta donde se encuentra el archivo de literales
  * @param text Texto seleccionado en el editor
  */
-async function replaceString(path: string, text: string) {
-    const fileObject = await loadJsonFile(path);
-    searchLiteral(text, fileObject);
+async function replaceString(text: string) {
+    const fileObject = await loadJsonFile(pathFile);
+    const generalObject = await loadJsonFile(generalFile);
+    searchLiteral(text, fileObject, generalObject);
 }
 
 /**
@@ -72,33 +72,51 @@ async function replaceString(path: string, text: string) {
  * 
  * @param text Texto seleccionado en el editor
  * @param fileObject Objecto con las claves y los valores del archivo de literales
+ * @param generalObject Objeto con las claves y los valores del archivo general de literales
  */
-function searchLiteral(text: string, fileObject) {
+function searchLiteral(text: string, fileObject, generalObject) {
     let keyExists = false;
-    // iteramos sobre los literales
-    for (let key in fileObject) {
+    let keyInGeneral = false;
+
+    // iteramos sobre los literales del archivo general
+    for (let key in generalObject) {
         // comparamos el texto seleccionado con los valores literales
-        if (text === fileObject[key]) {
-            keyExists = true;
+        if (text === generalObject[key]) {
+            keyInGeneral = true;
             // creamos la cadena con la que sustituimos el texto seleccionado
             let newText = eval('`' + keyPattern + '`');
             setTextToSelectionRange(range, newText);
         }
     }
+    // si no existe en el archivo general buscamos en el propio del proyecto
+    if(!keyInGeneral){
+        // iteramos sobre los literales
+        for (let key in fileObject) {
+            // comparamos el texto seleccionado con los valores literales
+            if (text === fileObject[key]) {
+                keyExists = true;
+                // creamos la cadena con la que sustituimos el texto seleccionado
+                let newText = eval('`' + keyPattern + '`');
+                setTextToSelectionRange(range, newText);
+            }
+        }
 
-    if(!keyExists) {
-        filterTextWrapper();
+        if (!keyExists) {
+            filterTextWrapper();
+        }
     }
+    
+
+    
 }
 /**
  * Función que sustituye la cadena seleccionada por la clave de su literal
  * con el formato adecuado
  * 
- * @param path Ruta donde se encuentra el archivo de literales
  * @param text Texto seleccionado en el editor
  */
-async function searchKey(path: string, text: string) {
-    const fileObject = await loadJsonFile(path);
+async function searchKey(text: string) {
+    const fileObject = await loadJsonFile(pathFile);
     createKey(text, fileObject);
 }
 
