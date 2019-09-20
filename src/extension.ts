@@ -8,6 +8,7 @@ var text: string; // texto seleccionado en el editor de texto
 let lastEntry: string = '';
 var config = (vscode.workspace.getConfiguration('filterText') as any); // aqui cargaremos la configuracion de nuestra extension
 const pathFile = config.filePath.windows; // ruta de nuestro archivo de literales
+const generalFile = config.filePathGeneral.windows; // ruta de nuestro archivo de literales general
 const keyPattern = config.stringTemplate.windows; // plantilla de nuestra clave
 
 export function activate(context: vscode.ExtensionContext) {    

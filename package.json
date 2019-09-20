@@ -29,6 +29,10 @@
           "type": "string",
           "description": "Path of the file to use."
         },
+        "filterText.filePathGeneral.windows": {
+          "type": "string",
+          "description": "Path of the general json file to use."
+        },
         "filterText.stringTemplate.windows": {
           "type": "string",
           "description": "Template of the key string template to use. Use ${key} to reference the key. Ex: {{ '${key}' | translate }}"
