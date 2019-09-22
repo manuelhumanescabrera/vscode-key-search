@@ -10,6 +10,8 @@ var config = (vscode.workspace.getConfiguration('filterText') as any); // aqui c
 const pathFile = config.filePath.windows; // ruta de nuestro archivo de literales
 const generalFile = config.filePathGeneral.windows; // ruta de nuestro archivo de literales general
 const keyPattern = config.stringTemplate.windows; // plantilla de nuestra clave
+const checkBoxGenerate = config.generateJsonTrads.windows; // checkbox que indica si queremos generar json de traducciones
+const generatedFilePath = config.filePathTrads.windows; // ruta donde crearemos el archivo con los nuevos literales para traducir
 
 export function activate(context: vscode.ExtensionContext) {    
     let inplace = vscode.commands.registerCommand('extension.filterTextInplace', (args?: {}) => filterText(args));
@@ -113,11 +115,12 @@ function searchLiteral(text: string, fileObject, generalObject) {
  * Función que sustituye la cadena seleccionada por la clave de su literal
  * con el formato adecuado
  * 
- * @param text Texto seleccionado en el editor
+ * @param key Clave introducida en el input
  */
-async function searchKey(text: string) {
+async function searchKey(key: string) {
     const fileObject = await loadJsonFile(pathFile);
-    createKey(text, fileObject);
+    const generatedJSON = await loadJsonFile(generatedFilePath);
+    createKey(key, fileObject, generatedJSON);
 }
 
 /**
@@ -126,7 +129,7 @@ async function searchKey(text: string) {
  * @param key Clave introducida en el input
  * @param fileObject Objecto con las claves y los valores del archivo de literales
  */
-function createKey(key: string, fileObject) {
+function createKey(key: string, fileObject, generatedJSON) {
     // iteramos sobre las claves de los literales
     let keyExists = false;
     for (let keyFile in fileObject) {
@@ -142,6 +145,12 @@ function createKey(key: string, fileObject) {
         filterTextWrapper();
     }
     else {
+        // comprobamos si esta marcado el checkbox de generar JSON para traducciones
+        if (checkBoxGenerate){
+            generatedJSON[key] = text.replace(/\r?\n|\r| {2,}/g, " "); // aqui eliminamos el formato del texto
+            // añadimos nuestra nueva clave y literal al archivo de literales
+            jsonfile.writeFileSync(generatedFilePath, generatedJSON, { spaces: 2, EOL: '\r\n' });
+        }
         fileObject[key] = text.replace(/\r?\n|\r| {2,}/g," "); // aqui eliminamos el formato del texto
         // añadimos nuestra nueva clave y literal al archivo de literales
         jsonfile.writeFileSync(pathFile, fileObject, { spaces: 2, EOL: '\r\n' });

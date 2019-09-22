@@ -36,6 +36,14 @@
         "filterText.stringTemplate.windows": {
           "type": "string",
           "description": "Template of the key string template to use. Use ${key} to reference the key. Ex: {{ '${key}' | translate }}"
+        },
+        "filterText.generateJsonTrads.windows": {
+          "type": "boolean",
+          "description": "Check this box if you want to generate the json with the new literal"
+        },
+        "filterText.filePathTrads.windows": {
+          "type": "string",
+          "description": "Path of the generated json file with the new literal to translate."
         }
       }
     },
