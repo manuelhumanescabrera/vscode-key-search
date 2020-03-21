@@ -77,11 +77,11 @@ async function replaceString(text: string) {
 function searchLiteral(text: string, fileObject, generalObject) {
     let keyExists = false;
     let keyInGeneral = false;
-
+    let cleanText = text.replace(/\s\s+/g, ' ');
     // iteramos sobre los literales del archivo general
     for (let key in generalObject) {
         // comparamos el texto seleccionado con los valores literales
-        if (text === generalObject[key]) {
+        if (cleanText === generalObject[key]) {
             keyInGeneral = true;
             // creamos la cadena con la que sustituimos el texto seleccionado
             let newText = eval('`' + keyPattern + '`');
@@ -93,7 +93,7 @@ function searchLiteral(text: string, fileObject, generalObject) {
         // iteramos sobre los literales
         for (let key in fileObject) {
             // comparamos el texto seleccionado con los valores literales
-            if (text === fileObject[key]) {
+            if (cleanText === fileObject[key]) {
                 keyExists = true;
                 // creamos la cadena con la que sustituimos el texto seleccionado
                 let newText = eval('`' + keyPattern + '`');
