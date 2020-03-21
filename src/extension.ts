@@ -142,7 +142,7 @@ function createKey(key: string, fileObject) {
         filterTextWrapper();
     }
     else {
-        fileObject[key] = text.replace(/\r?\n|\r| {2,}/g," "); // aqui eliminamos el formato del texto
+        fileObject[key] = text.replace(/\s\s+/g, ' '); // aqui eliminamos el formato del texto
         // añadimos nuestra nueva clave y literal al archivo de literales
         jsonfile.writeFileSync(pathFile, fileObject, { spaces: 2, EOL: '\r\n' });
         let newText = eval('`' + keyPattern + '`');
