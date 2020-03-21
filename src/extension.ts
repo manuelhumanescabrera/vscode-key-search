@@ -77,7 +77,7 @@ async function replaceString(text: string) {
 function searchLiteral(text: string, fileObject, generalObject) {
     let keyExists = false;
     let keyInGeneral = false;
-    let cleanText = text.replace(/\s\s+/g, ' ');
+    let cleanText = text.replace(/\s\s+/g, ' '); // eliminamos espacios extra, tabulaciones y saltos de linea
     // iteramos sobre los literales del archivo general
     for (let key in generalObject) {
         // comparamos el texto seleccionado con los valores literales
